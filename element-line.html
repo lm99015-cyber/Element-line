@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>원소 줄 잇기</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&family=Noto+Sans+KR:wght@700;800;900&subset=korean&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fffbf0;--surface:#ffffff;--border:rgba(0,0,0,0.08);
+  --accent:#ff6b35;--accent2:#ffc107;--green:#22a86a;--red:#e53e3e;
+  --blue:#3b82f6;--purple:#8b5cf6;--text:#2d2013;--muted:#a08060;
+  --card-r:18px;--game-max:min(90vw,580px);
+}
+@media(max-width:599px){:root{--game-max:100%;}}
+@media(min-width:1200px){:root{--game-max:min(90vw,620px);}}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans KR','Nunito',sans-serif;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(circle 500px at 10% 15%,rgba(255,193,7,0.18) 0%,transparent 70%),
+    radial-gradient(circle 400px at 88% 10%,rgba(255,107,53,0.12) 0%,transparent 70%),
+    radial-gradient(circle 600px at 50% 90%,rgba(76,175,147,0.12) 0%,transparent 70%),
+    radial-gradient(circle 300px at 5% 85%,rgba(59,130,246,0.10) 0%,transparent 70%);}
+.float-els{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.float-el{position:absolute;font-family:'Baloo 2',sans-serif;font-weight:800;line-height:1;user-select:none;animation:floatUp linear infinite;}
+@keyframes floatUp{from{transform:translateY(110vh) rotate(-10deg);opacity:0}8%{opacity:1}92%{opacity:1}to{transform:translateY(-10vh) rotate(10deg);opacity:0}}
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.hidden{display:none!important}
+
+/* ════════ TITLE ════════ */
+#screen-title{text-align:center}
+.title-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:5px 16px;border-radius:30px;margin-bottom:18px;box-shadow:0 4px 16px rgba(255,107,53,0.3);}
+.title-main{font-family:'Baloo 2',sans-serif;font-size:clamp(34px,7vw,68px);font-weight:800;line-height:1.1;color:var(--text);margin-bottom:6px;}
+.title-main span{color:var(--accent)}
+.title-sub{font-size:clamp(13px,2vw,16px);color:var(--muted);margin-bottom:28px;font-weight:700;}
+.rules-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;width:100%;max-width:560px;margin-bottom:26px;}
+.rule-card{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:14px;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,0.06);transition:transform 0.15s;}
+.rule-card:hover{transform:translateY(-3px)}
+.rule-icon{font-size:22px;margin-bottom:5px}
+.rule-title{font-size:12px;font-weight:800;color:var(--accent);margin-bottom:2px;}
+.rule-desc{font-size:11px;color:var(--muted);line-height:1.5;font-weight:600;}
+.btn-start{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--accent),#ff8c42);color:#fff;font-size:17px;font-weight:800;padding:15px 48px;border-radius:50px;border:none;cursor:pointer;box-shadow:0 6px 24px rgba(255,107,53,0.4);transition:transform 0.15s,box-shadow 0.15s;font-family:'Nunito',sans-serif;}
+.btn-start:hover{transform:translateY(-3px) scale(1.02);}
+.lb-preview{background:var(--surface);border:2px solid var(--border);border-radius:var(--card-r);padding:16px 20px;width:100%;max-width:440px;margin-top:18px;box-shadow:0 4px 20px rgba(0,0,0,0.07);}
+.lb-p-title{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+.lb-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);}
+.lb-row:last-child{border-bottom:none}
+.lb-name{flex:1;font-size:13px;font-weight:700;}
+.lb-score{font-size:13px;font-weight:800;color:var(--accent);}
+.lb-acc{font-size:11px;color:var(--muted);font-weight:700;}
+
+/* ════════ NAME ════════ */
+#screen-name{text-align:center}
+.name-bubble{font-size:64px;margin-bottom:10px;animation:wiggle 2s ease-in-out infinite;}
+@keyframes wiggle{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.name-title{font-family:'Baloo 2',sans-serif;font-size:clamp(22px,4vw,32px);font-weight:800;margin-bottom:4px;}
+.name-sub{font-size:13px;color:var(--muted);margin-bottom:24px;font-weight:700;}
+.name-input{background:var(--surface);border:3px solid var(--border);border-radius:14px;color:var(--text);font-size:17px;font-weight:700;font-family:'Noto Sans KR',sans-serif;padding:13px 20px;width:100%;max-width:320px;text-align:center;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.name-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(255,107,53,0.15);}
+.name-input::placeholder{color:#c8b8a0;font-weight:600;}
+.btn-name{display:inline-flex;align-items:center;gap:8px;margin-top:14px;background:linear-gradient(135deg,var(--accent),#ff8c42);color:#fff;font-size:15px;font-weight:800;padding:13px 40px;border-radius:50px;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(255,107,53,0.35);transition:transform 0.15s;font-family:'Nunito',sans-serif;}
+.btn-name:hover{transform:translateY(-2px)}
+
+/* ════════ GAME ════════ */
+#screen-game{width:100%;max-width:var(--game-max);margin-left:auto;margin-right:auto;display:flex;flex-direction:column;align-items:stretch;padding-top:10px;padding-bottom:20px;}
+.hud{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 16px;background:var(--surface);border:2px solid var(--border);border-radius:var(--card-r);margin-bottom:8px;box-shadow:0 3px 14px rgba(0,0,0,0.06);}
+.hud-item{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.hud-label{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.hud-val{font-size:22px;font-weight:900;font-family:'Baloo 2',sans-serif;}
+.hud-val.accent{color:var(--accent)}
+.hud-val.green{color:var(--green)}
+.hud-val.yellow{color:#d97706}
+.progress-wrap{width:100%;height:8px;background:#ffe9cc;border-radius:5px;margin-bottom:10px;overflow:hidden;}
+.progress-bar{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width 0.4s cubic-bezier(0.4,0,0.2,1);}
+
+/* 안내 배지 */
+.guide-badge{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,var(--accent),#ff8c42);color:#fff;font-size:12px;font-weight:800;padding:6px 18px;border-radius:30px;font-family:'Noto Sans KR',sans-serif;box-shadow:0 3px 10px rgba(255,107,53,0.3);margin-bottom:12px;align-self:center;}
+
+/* 피드백 */
+.feedback-bar{width:100%;padding:10px 14px;border-radius:12px;font-size:14px;font-weight:800;text-align:center;transition:all 0.2s;margin-bottom:10px;display:none;}
+.feedback-bar.correct{background:linear-gradient(135deg,#d1fae5,#ecfdf5);color:#065f46;border:2px solid #6ee7b7;}
+.feedback-bar.wrong{background:linear-gradient(135deg,#fee2e2,#fff5f5);color:#991b1b;border:2px solid #fca5a5;}
+.feedback-bar.complete{background:linear-gradient(135deg,#e0f2fe,#f0f9ff);color:#0369a1;border:2px solid #7dd3fc;}
+
+/* 줄 잇기 게임판 */
+.game-board{
+  position:relative;width:100%;
+  background:var(--surface);border:2px solid var(--border);border-radius:var(--card-r);
+  padding:16px 12px;box-shadow:0 4px 20px rgba(0,0,0,0.07);
+  overflow:hidden;
+}
+.game-board::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent2),var(--accent),#ff5f7e);}
+
+/* SVG 선 레이어 */
+.lines-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;}
+
+/* 컬럼 레이아웃 */
+.columns-wrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;position:relative;z-index:2;}
+.col-header{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;text-align:center;padding:4px 0 8px;margin-bottom:4px;}
+.col-header.num-h{color:var(--blue)}
+.col-header.sym-h{color:var(--accent)}
+.col-header.kr-h{color:var(--green)}
+
+/* 컬럼 레이아웃 - 버튼:선:버튼:선:버튼 = 2:1:2:1:2 */
+.columns-wrap{
+  display:grid;
+  grid-template-columns:2fr 1fr 2fr 1fr 2fr;
+  gap:0;
+  position:relative;z-index:2;
+  align-items:start;
+}
+.col-header{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;text-align:center;padding:4px 0 8px;margin-bottom:4px;}
+.col-header.num-h{color:var(--blue)}
+.col-header.sym-h{color:var(--accent)}
+.col-header.kr-h{color:var(--green)}
+/* 선 공간 컬럼 헤더 (빈칸) */
+.col-spacer{padding:4px 0 8px;margin-bottom:4px;}
+
+/* 아이템 버튼 */
+.item{
+  background:var(--surface);border:2.5px solid var(--border);border-radius:10px;
+  padding:0 4px;text-align:center;cursor:pointer;
+  transition:all 0.15s;margin-bottom:6px;
+  position:relative;user-select:none;
+  height:44px;display:flex;align-items:center;justify-content:center;
+  width:100%;
+}
+.item:last-child{margin-bottom:0;}
+.item.num-item{border-color:#bfdbfe;}
+.item.sym-item{border-color:#fed7aa;}
+.item.kr-item{border-color:#bbf7d0;}
+.item:hover:not(.matched):not(.selected){transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.item.num-item:hover:not(.matched):not(.selected){border-color:var(--blue);background:#eff6ff;}
+.item.sym-item:hover:not(.matched):not(.selected){border-color:var(--accent);background:#fff3ec;}
+.item.kr-item:hover:not(.matched):not(.selected){border-color:var(--green);background:#ecfdf5;}
+.item.selected{transform:translateY(-2px) scale(1.04);box-shadow:0 6px 20px rgba(255,107,53,0.3);border-color:var(--accent)!important;background:#fff3ec!important;}
+.item.matched{opacity:0.55;cursor:default;transform:none!important;pointer-events:none;}
+.item.wrong-flash{animation:shake 0.35s;border-color:var(--red)!important;background:#fff5f5!important;}
+.item-num{font-family:'Baloo 2',sans-serif;font-size:clamp(14px,2.2vw,18px);font-weight:800;color:var(--blue);}
+.item-sym{font-family:'Baloo 2',sans-serif;font-size:clamp(14px,2.2vw,18px);font-weight:800;color:var(--accent);}
+.item-kr{font-family:'Noto Sans KR',sans-serif;font-size:clamp(11px,1.6vw,13px);font-weight:800;color:var(--green);}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}60%{transform:translateX(5px)}}
+
+/* 다음 버튼 */
+.btn-next{width:100%;margin-top:12px;padding:13px;border-radius:14px;border:none;cursor:pointer;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif;background:linear-gradient(135deg,var(--accent),#ff8c42);color:#fff;box-shadow:0 4px 16px rgba(255,107,53,0.35);transition:all 0.15s;display:none;}
+.btn-next:hover{transform:translateY(-2px);}
+
+/* ════════ RESULT ════════ */
+#screen-result{text-align:center;gap:0;width:100%;max-width:var(--game-max);margin-left:auto;margin-right:auto;}
+.result-badge{font-size:80px;display:block;animation:popIn 0.6s cubic-bezier(0.34,1.56,0.64,1);margin-bottom:6px;}
+@keyframes popIn{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1);opacity:1}}
+.result-title{font-family:'Baloo 2',sans-serif;font-size:clamp(26px,5vw,40px);font-weight:800;margin-bottom:4px;}
+.result-name{font-size:15px;color:var(--muted);margin-bottom:22px;font-weight:700;}
+.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;margin-bottom:20px;}
+.rs-card{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:16px 8px;box-shadow:0 3px 12px rgba(0,0,0,0.06);}
+.rs-label{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.rs-val{font-family:'Baloo 2',sans-serif;font-size:clamp(20px,4vw,30px);font-weight:800;}
+.rs-val.green{color:var(--green)} .rs-val.yellow{color:#d97706} .rs-val.accent{color:var(--accent)}
+.review-wrap{width:100%;text-align:left;margin-bottom:18px;}
+.review-title{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.review-item{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:7px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.ri-answer{font-size:13px;font-weight:800;color:var(--green);}
+.ri-wrong{font-size:12px;color:var(--red);font-weight:700;margin-top:2px;}
+.lb-wrap{width:100%;text-align:left;margin-bottom:20px;}
+.lb-wrap-title{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+.lb-table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:16px;overflow:hidden;border:2px solid var(--border);box-shadow:0 3px 14px rgba(0,0,0,0.06);}
+.lb-table th{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding:12px 16px;text-align:left;border-bottom:2px solid var(--border);background:#fdf6e3;}
+.lb-table td{padding:11px 16px;font-size:13px;font-weight:700;border-bottom:1px solid var(--border);color:var(--text);}
+.lb-table tr:last-child td{border-bottom:none}
+.lb-table tr.highlight td{background:#fff8ee}
+.score-cell{font-weight:800;color:var(--accent);}
+.btn-group{display:flex;gap:10px;width:100%;}
+.btn-retry{flex:1;padding:15px;border-radius:14px;cursor:pointer;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif;background:var(--surface);color:var(--text);border:2px solid var(--border);transition:all 0.15s;}
+.btn-retry:hover{border-color:var(--accent2);background:#fff8e6;transform:translateY(-2px);}
+.btn-home{flex:1;padding:15px;border-radius:14px;cursor:pointer;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif;background:linear-gradient(135deg,var(--accent),#ff8c42);color:#fff;border:none;box-shadow:0 4px 16px rgba(255,107,53,0.35);transition:all 0.15s;}
+.btn-home:hover{transform:translateY(-2px);}
+.particle{position:fixed;pointer-events:none;z-index:999;border-radius:50%;animation:burst 0.8s ease-out forwards;}
+@keyframes burst{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}}
+</style>
+</head>
+<body>
+<div class="float-els" id="float-els"></div>
+
+<!-- ══ TITLE ══ -->
+<div class="page" id="screen-title">
+  <div class="title-badge">🔗 Line Connect</div>
+  <div class="title-main">⚗️ 원소 <span>줄 잇기</span> 🧪</div>
+  <div class="title-sub">번호 · 영문 · 한글을 올바르게 연결하세요!</div>
+  <div class="rules-wrap">
+    <div class="rule-card"><div class="rule-icon">🔗</div><div class="rule-title">3컬럼 연결</div><div class="rule-desc">번호 → 영문 기호 → 한글 이름 순서로 선을 이어요</div></div>
+    <div class="rule-card"><div class="rule-icon">4️⃣</div><div class="rule-title">4쌍 동시</div><div class="rule-desc">한 화면에 4개 원소를 동시에 연결해요</div></div>
+    <div class="rule-card"><div class="rule-icon">⚡</div><div class="rule-title">즉시 피드백</div><div class="rule-desc">틀리면 바로 표시! 모두 맞추면 다음으로</div></div>
+    <div class="rule-card"><div class="rule-icon">🏆</div><div class="rule-title">5라운드</div><div class="rule-desc">총 20개 원소를 5라운드에 걸쳐 완성!</div></div>
+  </div>
+  <button class="btn-start" onclick="goName()">게임 시작 🚀</button>
+  <div class="lb-preview" id="lb-preview" style="display:none">
+    <div class="lb-p-title">🏆 리더보드</div>
+    <div id="lb-preview-rows"></div>
+  </div>
+</div>
+
+<!-- ══ NAME ══ -->
+<div class="page hidden" id="screen-name">
+  <div class="name-bubble">🧑‍🔬</div>
+  <div class="name-title">어떻게 불러드릴까요?</div>
+  <div class="name-sub">리더보드에 표시될 이름을 입력하세요 ✏️</div>
+  <input class="name-input" id="name-input" placeholder="이름을 입력하세요" maxlength="10" autocomplete="off">
+  <button class="btn-name" onclick="startGame()">시작하기 🎉</button>
+</div>
+
+<!-- ══ GAME ══ -->
+<div class="page hidden" id="screen-game">
+  <div class="hud">
+    <div class="hud-item"><div class="hud-label">라운드</div><div class="hud-val accent" id="hud-round">1/5</div></div>
+    <div class="hud-item"><div class="hud-label">점수</div><div class="hud-val green" id="hud-score">0</div></div>
+    <div class="hud-item"><div class="hud-label">연속</div><div class="hud-val accent" id="hud-streak">🔥 0</div></div>
+    <div class="hud-item"><div class="hud-label">정답쌍</div><div class="hud-val yellow" id="hud-correct">0</div></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:10%"></div></div>
+
+  <div class="guide-badge" id="guide-badge">번호를 먼저 선택하세요</div>
+  <div class="feedback-bar" id="feedback-bar"></div>
+
+  <div class="game-board" id="game-board">
+    <svg class="lines-svg" id="lines-svg"></svg>
+    <div class="columns-wrap">
+      <div>
+        <div class="col-header kr-h">한글</div>
+        <div id="col-kr"></div>
+      </div>
+      <div><div class="col-spacer"></div></div>
+      <div>
+        <div class="col-header sym-h">영문</div>
+        <div id="col-sym"></div>
+      </div>
+      <div><div class="col-spacer"></div></div>
+      <div>
+        <div class="col-header num-h">번호</div>
+        <div id="col-num"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-next" id="btn-next" onclick="nextRound()">다음 라운드 →</button>
+</div>
+
+<!-- ══ RESULT ══ -->
+<div class="page hidden" id="screen-result">
+  <div class="result-badge" id="result-badge">🎉</div>
+  <div class="result-title" id="result-title"></div>
+  <div class="result-name" id="result-name"></div>
+  <div class="result-stats">
+    <div class="rs-card"><div class="rs-label">정답쌍</div><div class="rs-val green" id="rs-correct">0/20</div></div>
+    <div class="rs-card"><div class="rs-label">점수</div><div class="rs-val accent" id="rs-score">0</div></div>
+    <div class="rs-card"><div class="rs-label">최고연속</div><div class="rs-val yellow" id="rs-streak">0</div></div>
+  </div>
+  <div class="review-wrap" id="review-wrap"></div>
+  <div class="lb-wrap">
+    <div class="lb-wrap-title">🏆 리더보드</div>
+    <table class="lb-table">
+      <thead><tr><th>#</th><th>이름</th><th>점수</th><th>정답쌍</th></tr></thead>
+      <tbody id="lb-tbody"></tbody>
+    </table>
+  </div>
+  <div class="btn-group">
+    <button class="btn-retry" onclick="retryGame()">🔄 다시 도전</button>
+    <button class="btn-home" onclick="goHome()">🏠 홈으로</button>
+  </div>
+</div>
+
+<script>
+const ELEMENTS=[
+  {num:1,sym:'H',kr:'수소'},{num:2,sym:'He',kr:'헬륨'},{num:3,sym:'Li',kr:'리튬'},
+  {num:4,sym:'Be',kr:'베릴륨'},{num:5,sym:'B',kr:'붕소'},{num:6,sym:'C',kr:'탄소'},
+  {num:7,sym:'N',kr:'질소'},{num:8,sym:'O',kr:'산소'},{num:9,sym:'F',kr:'플루오린'},
+  {num:10,sym:'Ne',kr:'네온'},{num:11,sym:'Na',kr:'나트륨'},{num:12,sym:'Mg',kr:'마그네슘'},
+  {num:13,sym:'Al',kr:'알루미늄'},{num:14,sym:'Si',kr:'규소'},{num:15,sym:'P',kr:'인'},
+  {num:16,sym:'S',kr:'황'},{num:17,sym:'Cl',kr:'염소'},{num:18,sym:'Ar',kr:'아르곤'},
+  {num:19,sym:'K',kr:'칼륨'},{num:20,sym:'Ca',kr:'칼슘'},
+];
+const PAIR_COLORS=['#3b82f6','#ff6b35','#22a86a','#8b5cf6'];
+
+/* ── 플로팅 배경 ── */
+(function(){
+  const c=document.getElementById('float-els');
+  const syms=ELEMENTS.map(e=>e.sym);
+  const colors=['rgba(255,107,53,0.12)','rgba(255,193,7,0.14)','rgba(76,175,147,0.11)','rgba(59,130,246,0.10)','rgba(139,92,246,0.10)'];
+  for(let i=0;i<20;i++){
+    const d=document.createElement('div'); d.className='float-el';
+    const fs=20+Math.random()*60;
+    d.style.cssText=`left:${Math.random()*100}%;font-size:${fs}px;color:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${12+Math.random()*18}s;animation-delay:${-Math.random()*22}s;`;
+    d.textContent=syms[Math.floor(Math.random()*syms.length)];
+    c.appendChild(d);
+  }
+})();
+
+function spawnConfetti(x,y){
+  const colors=['#ff6b35','#ffc107','#4caf93','#3b82f6','#ec4899','#8b5cf6'];
+  for(let i=0;i<16;i++){
+    const p=document.createElement('div'); p.className='particle';
+    const size=6+Math.random()*8, angle=(Math.PI*2/16)*i+Math.random()*0.5, dist=60+Math.random()*80;
+    p.style.cssText=`left:${x}px;top:${y}px;width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist}px;animation-duration:${0.5+Math.random()*0.4}s;`;
+    document.body.appendChild(p); setTimeout(()=>p.remove(),900);
+  }
+}
+
+/* ── 상태 ── */
+let playerName='', rounds=[], roundIdx=0;
+let score=0, streak=0, maxStreak=0, totalCorrect=0;
+let wrongPairs=[];
+// 현재 라운드 상태
+let curPairs=[], selectedNum=null, selectedSym=null;
+let matchedCount=0, step=0; // 0:번호선택 1:영문선택 2:한글선택
+let leaderboard=JSON.parse(localStorage.getItem('el_line_lb')||'[]');
+
+function showScreen(id){['screen-title','screen-name','screen-game','screen-result'].forEach(s=>{document.getElementById(s).classList.toggle('hidden',s!==id);});}
+function goName(){showScreen('screen-name');setTimeout(()=>document.getElementById('name-input').focus(),100);}
+function goHome(){renderLbPreview();showScreen('screen-title');}
+function retryGame(){showScreen('screen-name');}
+document.getElementById('name-input').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
+
+function saveLb(entry){
+  leaderboard.push(entry);
+  leaderboard.sort((a,b)=>b.score!==a.score?b.score-a.score:b.correct-a.correct);
+  leaderboard=leaderboard.slice(0,20);
+  localStorage.setItem('el_line_lb',JSON.stringify(leaderboard));
+}
+function renderLbPreview(){
+  const el=document.getElementById('lb-preview'), rows=document.getElementById('lb-preview-rows');
+  if(!leaderboard.length){el.style.display='none';return;}
+  el.style.display='block';
+  const medals=['🥇','🥈','🥉'];
+  rows.innerHTML=leaderboard.slice(0,5).map((e,i)=>`
+    <div class="lb-row"><span style="width:22px;text-align:center">${medals[i]||i+1}</span>
+    <span class="lb-name">${e.name}</span><span class="lb-score">${e.score}점</span>
+    <span class="lb-acc">${e.correct}/20</span></div>`).join('');
+}
+function renderLbTable(myEntry){
+  const tbody=document.getElementById('lb-tbody'), medals=['🥇','🥈','🥉'];
+  tbody.innerHTML=leaderboard.slice(0,10).map((e,i)=>{
+    const isMe=e===myEntry;
+    return `<tr${isMe?' class="highlight"':''}><td>${medals[i]||''} ${i+1}</td><td>${isMe?'<b>'+e.name+'</b>':e.name}</td><td class="score-cell">${e.score}점</td><td>${e.correct}/20</td></tr>`;
+  }).join('');
+}
+
+/* ── 게임 시작 ── */
+function startGame(){
+  const n=document.getElementById('name-input').value.trim();
+  if(!n){document.getElementById('name-input').focus();return;}
+  playerName=n;
+  const pool=[...ELEMENTS]; shuffle(pool);
+  // 5라운드 × 4쌍
+  rounds=[];
+  for(let i=0;i<5;i++) rounds.push(pool.slice(i*4,(i+1)*4));
+  roundIdx=0; score=0; streak=0; maxStreak=0; totalCorrect=0; wrongPairs=[];
+  showScreen('screen-game');
+  renderRound();
+}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}}
+
+/* ── 라운드 렌더 ── */
+function renderRound(){
+  curPairs=rounds[roundIdx];
+  selectedNum=null; selectedSym=null; matchedCount=0; step=0;
+
+  document.getElementById('hud-round').textContent=`${roundIdx+1}/5`;
+  document.getElementById('hud-score').textContent=score;
+  document.getElementById('hud-streak').textContent=`🔥 ${streak}`;
+  document.getElementById('hud-correct').textContent=totalCorrect;
+  document.getElementById('progress-bar').style.width=`${(roundIdx/5)*100+10}%`;
+  document.getElementById('guide-badge').textContent='한글 이름을 먼저 선택하세요';
+  document.getElementById('btn-next').style.display='none';
+
+  const fb=document.getElementById('feedback-bar');
+  fb.style.display='none'; fb.className='feedback-bar';
+
+  // 각 컬럼 아이템 섞기
+  const numOrder=[...curPairs]; shuffle(numOrder);
+  const symOrder=[...curPairs]; shuffle(symOrder);
+  const krOrder=[...curPairs];  shuffle(krOrder);
+
+  // 번호 컬럼
+  const colNum=document.getElementById('col-num'); colNum.innerHTML='';
+  numOrder.forEach(el=>{
+    const d=document.createElement('div');
+    d.className='item num-item'; d.dataset.sym=el.sym; d.dataset.type='num';
+    d.innerHTML=`<div class="item-num">${el.num}</div>`;
+    d.addEventListener('click',()=>onClickNum(el,d));
+    colNum.appendChild(d);
+  });
+
+  // 영문 컬럼
+  const colSym=document.getElementById('col-sym'); colSym.innerHTML='';
+  symOrder.forEach(el=>{
+    const d=document.createElement('div');
+    d.className='item sym-item'; d.dataset.sym=el.sym; d.dataset.type='sym';
+    d.innerHTML=`<div class="item-sym">${el.sym}</div>`;
+    d.addEventListener('click',()=>onClickSym(el,d));
+    colSym.appendChild(d);
+  });
+
+  // 한글 컬럼
+  const colKr=document.getElementById('col-kr'); colKr.innerHTML='';
+  krOrder.forEach(el=>{
+    const d=document.createElement('div');
+    d.className='item kr-item'; d.dataset.sym=el.sym; d.dataset.type='kr';
+    d.innerHTML=`<div class="item-kr">${el.kr}</div>`;
+    d.addEventListener('click',()=>onClickKr(el,d));
+    colKr.appendChild(d);
+  });
+
+  // SVG 초기화 - 보드 크기에 맞게 viewBox 설정
+  const svg=document.getElementById('lines-svg');
+  svg.innerHTML='';
+  matchedLines=[];
+  requestAnimationFrame(()=>{
+    const board=document.getElementById('game-board');
+    const w=board.offsetWidth;
+    const h=board.offsetHeight;
+    svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  });
+}
+
+/* ── 클릭 핸들러 ── */
+function onClickKr(el, btn){
+  if(btn.classList.contains('matched')) return;
+  if(step!==0) return;
+  document.querySelectorAll('.kr-item.selected').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedNum=el; // selectedNum을 한글 선택 저장에 재사용
+  document.getElementById('guide-badge').textContent='영문 기호를 선택하세요';
+  step=1;
+}
+
+function onClickSym(el, btn){
+  if(btn.classList.contains('matched')) return;
+  if(step!==1){ showGuideShake(); return; }
+  document.querySelectorAll('.sym-item.selected').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedSym=el;
+  if(selectedNum.sym===el.sym){
+    document.getElementById('guide-badge').textContent='원자번호를 선택하세요';
+    step=2;
+  } else {
+    onWrongPick(
+      [btn, document.querySelector('.kr-item.selected')],
+      selectedNum, el, '영문'
+    );
+  }
+}
+
+function onClickNum(el, btn){
+  if(btn.classList.contains('matched')) return;
+  if(step!==2){ showGuideShake(); return; }
+  document.querySelectorAll('.num-item.selected').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  if(selectedNum.sym===el.sym){
+    onCorrectMatch(selectedNum, btn);
+  } else {
+    onWrongPick(
+      [btn, document.querySelector('.sym-item.selected'), document.querySelector('.kr-item.selected')],
+      selectedNum, el, '번호'
+    );
+  }
+}
+
+/* ── 정답 매칭 ── */
+function onCorrectMatch(el, numBtn){
+  const krBtn=document.querySelector(`.kr-item[data-sym="${el.sym}"]`);
+  const symBtn=document.querySelector(`.sym-item[data-sym="${el.sym}"]`);
+  const color=PAIR_COLORS[matchedCount%4];
+
+  [krBtn,symBtn,numBtn].forEach(b=>{
+    b.classList.remove('selected');
+    b.classList.add('matched');
+    b.style.borderColor=color;
+    b.style.background=hexToLight(color);
+  });
+
+  // 한글→영문→번호 방향으로 선 연결 및 쌍 저장
+  matchedLines.push({krSym:el.sym, symSym:el.sym, numSym:el.sym, color});
+  drawLine(krBtn, symBtn, color);
+  drawLine(symBtn, numBtn, color);
+
+  streak++; if(streak>maxStreak) maxStreak=streak;
+  const gained=50+streak*5;
+  score+=gained; totalCorrect++; matchedCount++;
+
+  document.getElementById('hud-score').textContent=score;
+  document.getElementById('hud-streak').textContent=`🔥 ${streak}`;
+  document.getElementById('hud-correct').textContent=totalCorrect;
+
+  const fb=document.getElementById('feedback-bar');
+  fb.style.display='block'; fb.className='feedback-bar correct';
+  fb.textContent=streak>1?`🎉 +${gained}점 (🔥${streak}연속 보너스!)`:`✅ ${el.num} — ${el.sym} — ${el.kr} 연결 완료! +${gained}점`;
+  const rect=fb.getBoundingClientRect();
+  spawnConfetti(rect.left+rect.width/2, rect.top+rect.height/2);
+
+  selectedNum=null; selectedSym=null; step=0;
+  document.getElementById('guide-badge').textContent='한글 이름을 먼저 선택하세요';
+
+  if(matchedCount>=4){
+    setTimeout(()=>{
+      fb.className='feedback-bar complete';
+      fb.textContent='🎊 라운드 완료! 다음으로 이동하세요';
+      document.getElementById('btn-next').style.display='block';
+    }, 400);
+  }
+}
+
+/* ── 오답 처리 ── */
+const CHEER_MSGS=[
+  '괜찮아요, 다시 해봐요! 💪',
+  '아쉽지만 다음엔 꼭! 🌟',
+  '조금만 더 집중해봐요! 🎯',
+  '실수는 실력의 밑거름! 🌱',
+  '한 번 더 도전해봐요! 🔥',
+  '거의 다 왔어요, 파이팅! ✨',
+];
+function onWrongPick(btns, correct, chosen, stepLabel){
+  btns.forEach(b=>{ if(b) b.classList.add('wrong-flash'); });
+  setTimeout(()=>{ btns.forEach(b=>{ if(b){ b.classList.remove('wrong-flash','selected'); }}); },400);
+
+  streak=0;
+  document.getElementById('hud-streak').textContent=`🔥 ${streak}`;
+
+  const msg=CHEER_MSGS[Math.floor(Math.random()*CHEER_MSGS.length)];
+  const fb=document.getElementById('feedback-bar');
+  fb.style.display='block'; fb.className='feedback-bar wrong';
+  fb.textContent=msg;
+
+  wrongPairs.push({el:correct, wrongStep:stepLabel});
+  selectedNum=null; selectedSym=null; step=0;
+  document.getElementById('guide-badge').textContent='한글 이름을 먼저 선택하세요';
+}
+
+/* ── 선 그리기 ── */
+let matchedLines=[]; // {fromSym, toSym, color} 저장
+
+function redrawLines(){
+  const svg=document.getElementById('lines-svg');
+  if(!svg) return;
+  svg.innerHTML='';
+  const board=document.getElementById('game-board');
+  svg.setAttribute('viewBox',`0 0 ${board.offsetWidth} ${board.offsetHeight}`);
+  matchedLines.forEach(({krSym,symSym,numSym,color})=>{
+    const krBtn =document.querySelector(`.kr-item[data-sym="${krSym}"]`);
+    const symBtn=document.querySelector(`.sym-item[data-sym="${symSym}"]`);
+    const numBtn=document.querySelector(`.num-item[data-sym="${numSym}"]`);
+    if(krBtn&&symBtn) _drawPath(krBtn,symBtn,color);
+    if(symBtn&&numBtn) _drawPath(symBtn,numBtn,color);
+  });
+}
+
+function drawLine(fromEl, toEl, color){
+  const board=document.getElementById('game-board');
+  const svg=document.getElementById('lines-svg');
+  svg.setAttribute('viewBox',`0 0 ${board.offsetWidth} ${board.offsetHeight}`);
+  _drawPath(fromEl, toEl, color);
+}
+
+function _drawPath(fromEl, toEl, color){
+  const svg=document.getElementById('lines-svg');
+  const board=document.getElementById('game-board');
+  const boardRect=board.getBoundingClientRect();
+
+  function getPoint(el, side){
+    const r=el.getBoundingClientRect();
+    return {
+      x: side==='right' ? r.right-boardRect.left : r.left-boardRect.left,
+      y: r.top + r.height/2 - boardRect.top
+    };
+  }
+
+  const from=getPoint(fromEl,'right');
+  const to  =getPoint(toEl,  'left');
+  const mx  =(from.x+to.x)/2;
+
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d',`M${from.x},${from.y} C${mx},${from.y} ${mx},${to.y} ${to.x},${to.y}`);
+  path.setAttribute('stroke',color);
+  path.setAttribute('stroke-width','2.5');
+  path.setAttribute('fill','none');
+  path.setAttribute('stroke-linecap','round');
+  path.setAttribute('opacity','0.9');
+  svg.appendChild(path);
+}
+
+// 해상도 변경 시 선 재렌더링
+let resizeTimer=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(redrawLines, 100);
+});
+
+function hexToLight(hex){
+  const map={'#3b82f6':'#eff6ff','#ff6b35':'#fff3ec','#22a86a':'#ecfdf5','#8b5cf6':'#f5f3ff'};
+  return map[hex]||'#f9fafb';
+}
+
+function showGuideShake(){
+  const g=document.getElementById('guide-badge');
+  g.style.animation='none'; void g.offsetWidth;
+  g.style.animation='shake 0.35s';
+  setTimeout(()=>g.style.animation='',400);
+}
+
+/* ── 다음 라운드 ── */
+function nextRound(){
+  roundIdx++;
+  if(roundIdx>=5) endGame();
+  else renderRound();
+}
+
+/* ── 게임 종료 ── */
+function endGame(){
+  const pct=Math.round(totalCorrect/20*100);
+  const entry={name:playerName,score,correct:totalCorrect,streak:maxStreak};
+  saveLb(entry);
+
+  const badge=pct===100?'🏆':pct>=80?'🎉':pct>=60?'😊':pct>=40?'😅':'😢';
+  const title=pct===100?'완벽한 점수!':pct>=80?'훌륭해요!':pct>=60?'잘했어요!':pct>=40?'아쉽네요':'다시 도전!';
+
+  document.getElementById('result-badge').textContent=badge;
+  document.getElementById('result-title').textContent=title;
+  document.getElementById('result-name').textContent=`${playerName}님의 결과`;
+  document.getElementById('rs-correct').textContent=`${totalCorrect}/20`;
+  document.getElementById('rs-score').textContent=`${score}점`;
+  document.getElementById('rs-streak').textContent=`${maxStreak}연속`;
+
+  const reviewWrap=document.getElementById('review-wrap');
+  if(wrongPairs.length){
+    reviewWrap.innerHTML=`<div class="review-title">📝 오답 리뷰 (${wrongPairs.length}개)</div>`
+      +wrongPairs.map(r=>`
+        <div class="review-item">
+          <div class="ri-answer">${r.el.num} — ${r.el.sym} — ${r.el.kr}</div>
+          <div class="ri-wrong">❌ ${r.wrongStep} 단계에서 오답</div>
+        </div>`).join('');
+  } else { reviewWrap.innerHTML=''; }
+
+  renderLbTable(entry);
+  showScreen('screen-result');
+
+  if(pct>=70){
+    const cx=window.innerWidth/2;
+    setTimeout(()=>spawnConfetti(cx,200),100);
+    setTimeout(()=>spawnConfetti(cx-100,250),350);
+    setTimeout(()=>spawnConfetti(cx+100,220),600);
+  }
+}
+
+renderLbPreview();
+</script>
+</body>
+</html>
