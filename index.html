@@ -141,7 +141,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .item-kr{font-family:'Noto Sans KR',sans-serif;font-size:clamp(11px,1.6vw,13px);font-weight:800;color:var(--green);}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}60%{transform:translateX(5px)}}
 
-/* 다음 버튼 */
+/* 홈 버튼 */
+.btn-hud-home{
+  display:flex;align-items:center;gap:4px;
+  background:var(--surface);border:2px solid var(--border);border-radius:10px;
+  padding:6px 12px;cursor:pointer;font-size:12px;font-weight:800;
+  color:var(--muted);font-family:'Noto Sans KR',sans-serif;
+  transition:all 0.15s;
+}
+.btn-hud-home:hover{border-color:var(--accent);color:var(--accent);background:#fff3ec;}
 .btn-next{width:100%;margin-top:12px;padding:13px;border-radius:14px;border:none;cursor:pointer;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif;background:linear-gradient(135deg,var(--accent),#ff8c42);color:#fff;box-shadow:0 4px 16px rgba(255,107,53,0.35);transition:all 0.15s;display:none;}
 .btn-next:hover{transform:translateY(-2px);}
 
@@ -215,6 +223,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     <div class="hud-item"><div class="hud-label">점수</div><div class="hud-val green" id="hud-score">0</div></div>
     <div class="hud-item"><div class="hud-label">연속</div><div class="hud-val accent" id="hud-streak">🔥 0</div></div>
     <div class="hud-item"><div class="hud-label">정답쌍</div><div class="hud-val yellow" id="hud-correct">0</div></div>
+    <button class="btn-hud-home" onclick="goHome()">🏠 홈</button>
   </div>
   <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:10%"></div></div>
 
