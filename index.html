@@ -10,10 +10,29 @@
   --bg:#fffbf0;--surface:#ffffff;--border:rgba(0,0,0,0.08);
   --accent:#ff6b35;--accent2:#ffc107;--green:#22a86a;--red:#e53e3e;
   --blue:#3b82f6;--purple:#8b5cf6;--text:#2d2013;--muted:#a08060;
-  --card-r:18px;--game-max:min(90vw,580px);
+  --card-r:18px;--game-max:min(90vw,660px);
 }
 @media(max-width:599px){:root{--game-max:100%;}}
-@media(min-width:1200px){:root{--game-max:min(90vw,620px);}}
+/* ══ 태블릿 가로 (768~1024px) ══ */
+@media(min-width:768px) and (max-width:1024px){
+  .hud{ padding:14px 20px; }
+  .hud-val{ font-size:26px; }
+  .hud-label{ font-size:11px; }
+  .btn-hud-home{ font-size:13px; padding:9px 16px; }
+  .guide-badge{ font-size:14px; padding:8px 22px; }
+  .feedback-bar{ font-size:15px; padding:12px 18px; }
+  .item{ height:58px; border-radius:12px; }
+  .item-num{ font-size:20px; }
+  .item-sym{ font-size:20px; }
+  .item-kr{ font-size:15px; }
+  .col-header{ font-size:12px; padding:6px 0 10px; }
+  .result-badge{ font-size:96px; }
+  .result-title{ font-size:clamp(32px,5vw,46px); }
+  .rs-val{ font-size:clamp(24px,4vw,34px); }
+  .btn-next{ font-size:17px; padding:16px; }
+}
+
+@media(min-width:1200px){:root{--game-max:min(90vw,700px);}}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
@@ -174,7 +193,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   padding:0 4px;text-align:center;cursor:pointer;
   transition:all 0.15s;margin-bottom:6px;
   position:relative;user-select:none;
-  height:44px;display:flex;align-items:center;justify-content:center;
+  height:52px;display:flex;align-items:center;justify-content:center;
   width:100%;
 }
 .item:last-child{margin-bottom:0;}
@@ -188,9 +207,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .item.selected{transform:translateY(-2px) scale(1.04);box-shadow:0 6px 20px rgba(255,107,53,0.3);border-color:var(--accent)!important;background:#fff3ec!important;}
 .item.matched{opacity:0.55;cursor:default;transform:none!important;pointer-events:none;}
 .item.wrong-flash{animation:shake 0.35s;border-color:var(--red)!important;background:#fff5f5!important;}
-.item-num{font-size:clamp(14px,2.2vw,18px);font-weight:900;color:var(--blue);}
-.item-sym{font-size:clamp(14px,2.2vw,18px);font-weight:900;color:var(--accent);}
-.item-kr{font-size:clamp(11px,1.6vw,13px);font-weight:800;color:var(--green);}
+.item-num{font-size:clamp(15px,2.5vw,20px);font-weight:900;color:var(--blue);}
+.item-sym{font-size:clamp(15px,2.5vw,20px);font-weight:900;color:var(--accent);}
+.item-kr{font-size:clamp(13px,1.8vw,15px);font-weight:800;color:var(--green);}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}60%{transform:translateX(5px)}}
 
 /* 홈 버튼 */
@@ -263,7 +282,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <div class="map-btn-wrap"><a class="map-btn" href="https://lm99015-cyber.github.io/game_level/">원소 게임 탐험맵으로</a></div>
 
   <div class="title-badge">🔗 Line Connect</div>
-  <div class="title-main">⚗️ 원소 <span>연결 하기</span> 🧪</div>
+  <div class="title-main">⚗️ 원소 <span>연결</span> 🧪</div>
   <div class="title-sub">원소 한글이름 · 영문이름 · 번호를 올바르게 연결하세요!</div>
   <div class="rules-wrap">
     <div class="rule-card"><div class="rule-icon">🔗</div><div class="rule-title">3컬럼 연결</div><div class="rule-desc">한글 이름 → 영문 기호 → 번호 순서로 선을 이어요</div></div>
