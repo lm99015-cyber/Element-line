@@ -329,8 +329,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     <div class="hud-item"><div class="hud-label">점수</div><div class="hud-val green" id="hud-score">0</div></div>
     <div class="hud-item"><div class="hud-label">연속</div><div class="hud-val accent" id="hud-streak">🔥 0</div></div>
     <div class="hud-item"><div class="hud-label">정답쌍</div><div class="hud-val yellow" id="hud-correct">0</div></div>
-    <button class="btn-hud-home" onclick="goName()">← 처음으로</button>
-    <button class="btn-hud-home" onclick="window.location.href='https://lm99015-cyber.github.io/game_level/'">🎮 원소게임선택 (ZONE)</button>
+    <div style="display:flex;gap:6px;">
+      <button class="btn-hud-home" onclick="goName()">← 처음으로</button>
+      <button class="btn-hud-home" onclick="window.location.href='https://lm99015-cyber.github.io/game_level/'">🎮 원소게임선택 (ZONE)</button>
+    </div>
   </div>
   <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:10%"></div></div>
 
